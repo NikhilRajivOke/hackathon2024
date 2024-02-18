@@ -64,18 +64,18 @@ with col1:
     st.markdown("""
     ### Mode 1
     """)
-    st.dataframe(get_rankings("Mode1"),column_config={
+    st.dataframe(get_rankings("mode0"),column_config={
         "person": "Athlete",
-        "avg_delta": "Average Time in Seconds",
+        "avg_delta": "Average Response Time in Seconds",
         }, use_container_width=True) 
 
 with col2:
     st.markdown("""
     ### Mode 2
     """)
-    st.dataframe(get_rankings("Mode2"),column_config={
+    st.dataframe(get_rankings("mode1"),column_config={
         "person": "Athlete",
-        "avg_delta": "Average Time in Seconds",
+        "avg_delta": "Average Response Time in Seconds",
         }, use_container_width=True)
 
 

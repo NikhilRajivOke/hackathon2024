@@ -6,7 +6,7 @@ st.set_page_config(layout='wide', initial_sidebar_state='expanded')
 
 st.title(":orange[Athlete Activity] & :orange[Performance Analysis] :running:")
 
-def get_data_all_attempts(athlete):
+def get_data_all_attempts(athlete, mode):
     query=f"""
         with shifted_data as (
             select 
@@ -17,6 +17,7 @@ def get_data_all_attempts(athlete):
                 athlete
             where
                 person = '{athlete}'
+                and mode = '{mode}'
         )
         select
             attempt,
@@ -93,19 +94,30 @@ with col1:
 with col2:
     mode = st.selectbox("Select a mode", ["Mode1", "Mode2"])
 with col3:
-    attempt = st.selectbox("Select an attempt", get_attempts(athlete))
+    attempt = st.selectbox("Select an attempt", get_attempts(athlete, mode))
 
 
 if athlete and attempt:
     c1, c2 = st.columns([1, 1])
+    if mode == "Mode1":
+        mode = "mode0"
+    else:
+        mode = "mode1"
     with c1:
         data = get_data(athlete, attempt, mode)
+        print(data)
         line_chart_data = [
-                d["delta"]
-            for d in data
-        ]
-        st.line_chart(line_chart_data, color="#39ff14", use_container_width=True)
+                            {"time":d["delta"],
+                             "point":i,
+                             "color":"#39ff14"
+                             }
 
+            for i,d in enumerate(data)
+        ]
+        try:
+            st.line_chart(line_chart_data,x ="point", y="time", color="color", use_container_width=True)
+        except:
+            st.error("Not Enough Data")
     with c2:
         
 
@@ -131,14 +143,30 @@ if athlete and attempt:
             move_data.append({
                 "movement": movement,
                 "point": move_cnt[movement],
-                "delta": d["delta"]
+                "time": d["delta"]
             })
             move_cnt[movement] += 1
             
         # st.line_chart(move_data,x = "point", y="delta", color="movement",use_container_width=True)
-        st.scatter_chart(move_data, x="movement", y="delta", color="movement", use_container_width=True)
-
+        try:
+            st.scatter_chart(move_data, x="movement", y="time", color="movement", use_container_width=True)
+        except:
+            st.error("Not Enough Data")
 st.markdown("""---""")
-st.title(":orange[All Attempts]")
-all_data = get_data_all_attempts(athlete)
-st.line_chart(all_data,x="point",y="delta", color="attempt",use_container_width=True)
+st.title(":orange[All Attempts]") 
+c1, c2 = st.columns([1,1])
+with c1:
+    st.markdown("### :orange[Mode 1]")
+    all_data = get_data_all_attempts(athlete, "mode0")
+    try:
+
+        st.line_chart(all_data,x="point",y="delta", color="attempt",use_container_width=True)
+    except:
+        st.error("Not Enough Data")
+with c2:
+    st.markdown("### :orange[Mode 2]")
+    all_data = get_data_all_attempts(athlete, "mode1")
+    try:
+        st.line_chart(all_data,x="point",y="delta", color="attempt",use_container_width=True)
+    except:
+        st.error("Not Enough Data")

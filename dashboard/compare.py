@@ -8,16 +8,18 @@ st.markdown("""
     Take the last attempt of each athlete and compare them.
 """)
 
-col1, col2 = st.columns([1, 1])
+col1, col2, col3 = st.columns([1,1, 1])
 with col1:
     athlete1 = st.selectbox("Select an athlete", get_athletes(), key="athlete1")
 
 with col2:
     athlete2 = st.selectbox("Select an athlete", get_athletes(), key="athlete2")
 
+with col3:
+    mode = st.selectbox("Select a mode",["Mode 1", "Mode 2"])
 
 
-def get_data(athlete):
+def get_data(athlete,mode):
     query = f"""
         with shifted_data as (
             select 
@@ -29,6 +31,7 @@ def get_data(athlete):
             where
                 person = '{athlete}' and
                 attempt = (select max(attempt) from athlete where person = '{athlete}')
+                and mode = '{mode}'
         )
         select
             person,
@@ -55,15 +58,18 @@ if athlete1 and athlete2 and athlete1 == athlete2:
     st.error("Please select different athletes")
 elif athlete1 and athlete2:
     st.write(f"Comparing {athlete1} and {athlete2}")
-
-    data1 = get_data(athlete1)
-    data2 = get_data(athlete2)
+    mode1 = "mode0" if mode=="Mode 1" else "mode1"
+    data1 = get_data(athlete1, mode1)
+    data2 = get_data(athlete2, mode1)
     data = []
     colors = []
     for d in data1:
         data.append(d)
     for d in data2:
         data.append(d)
-    st.line_chart(data,x="point", y="delta", color="person", use_container_width=True)
+    try:
+        st.line_chart(data,x="point", y="delta", color="person", use_container_width=True)
+    except:
+        st.error("Not Enough Data")
 
 # neon green: #39ff14, #0cff14, #14ff39, #14ff0c, #0cff39, #39ff0c

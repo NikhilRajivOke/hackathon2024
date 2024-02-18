@@ -74,6 +74,11 @@
         // Play the audio
         audio.play();
       }
+
+      function stopBeepSound() {
+        var audio = document.getElementById("beepAudio");
+        audio.pause();
+      }
       // Function to handle form submission
       document
         .getElementById("numberForm")
@@ -99,6 +104,7 @@
                   } else {
                     // change to default color
                     document.body.style.backgroundColor = "#007a33"; // Change background color to Binghamton green
+                    stopBeepSound();
                   }
                 });
             }, 450);

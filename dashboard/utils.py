@@ -38,8 +38,13 @@ def get_athletes():
         athletes = [a[0] for a in athletes]
     return athletes
 
-def get_attempts(athlete):
-    attempts = run_query(f"SELECT distinct attempt FROM athlete WHERE person = '{athlete}'")
+def get_attempts(athlete, mode='all'):
+    query = f"SELECT distinct attempt FROM athlete WHERE person = '{athlete}'"
+    
+    if mode!='all':
+        mode = "mode0" if mode == "Mode 1" else "mode1"
+        query += f"and mode='{mode}'"
+    attempts = run_query(query)
     if attempts is None:
         return [1, 2, 3]
     else:
