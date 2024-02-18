@@ -258,6 +258,7 @@ if historical_yes == 1:
             break
 else:
     rows = []
+    points = []
     try:
         conn = establish_db_connection()
         cur = conn.cursor()
@@ -268,16 +269,26 @@ else:
 
         # Fetch all rows
         rows = cur.fetchall()
-
+        
         # Print the retrieved data
         for row in rows:
+            points.append(row[3])
             print(row)
-
+        print(len(points))
     except psycopg2.Error as e:
         print("Error executing SQL query:", e)
     # Main loop
+    pointer = 0
+    current_random_no = points[pointer]
+    data = {'value': current_random_no}
+    response = requests.put(url, json=data)
+
+    # Print the response
+    print(response.status_code)
+    print(response.json())
+
     while True:
-        # Read a frame from the webcam
+         # Read a frame from the webcam
         ret, frame = cap.read()
         if not ret:
             break
@@ -312,11 +323,15 @@ else:
             if diff > threshold and (i + 1) == current_random_no:
                 print(f"Color change detected in ROI {i+1} at timestamp: {timestamps[i]}")
                 all_data.append([time.time(), current_random_no])
-                random_number = random.randint(1, 3)
-                while(random_number == current_random_no):
-                    random_number = random.randint(1, 3)
-                current_random_no = random_number
-                data = {'value': current_random_no}
+                # random_number = random.randint(1, 3)
+                # while(random_number == current_random_no):
+                #     random_number = random.randint(1, 3)
+                pointer += 1
+                if pointer < len(points):
+                    current_random_no = points[pointer]
+                    data = {'value': current_random_no}
+                else:
+                    current_random_no = 0
                 response = requests.put(url, json=data)
 
                 # Print the response
@@ -339,7 +354,7 @@ else:
         prev_gray = gray.copy()
 
         # Break the loop if 'q' is pressed
-        if len(all_data) == 30 or cv2.waitKey(25) & 0xFF == ord('q'):
+        if pointer >= len(points) or cv2.waitKey(25) & 0xFF == ord('q'):
             # add data to postgres db
             conn = establish_db_connection()
             cur = conn.cursor()
