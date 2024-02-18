@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auto Refresh Example</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #007a33; /* Binghamton green */
+        color: #ffffff; /* White */
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #ffffff; /* White */
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        color: #000000; /* Black */
+        text-align: center;
+      }
+
+      h1 {
+        color: #007a33; /* Binghamton green */
+        margin-bottom: 20px;
+      }
+
+      input[type="number"] {
+        width: 100px;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #007a33; /* Binghamton green */
+        font-size: 16px;
+      }
+
+      button {
+        padding: 10px 20px;
+        background-color: #007a33; /* Binghamton green */
+        color: #ffffff; /* White */
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+
+      button:hover {
+        background-color: #005826; /* Darker green on hover */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container" class="container">
+      <h1>Enter a Number Between 1 and 3</h1>
+      <form id="numberForm">
+        <input type="number" id="userInput" min="1" max="3" required />
+        <button type="submit">Submit</button>
+      </form>
+      <audio id="beepAudio">
+        <source src="beep-02.mp3" type="audio/mp3" />
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+
+    <script>
+      function playBeepSound() {
+        // Get the audio element
+        var audio = document.getElementById("beepAudio");
+
+        // Play the audio
+        audio.play();
+      }
+      // Function to handle form submission
+      document
+        .getElementById("numberForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent default form submission
+          document.getElementById("container").style.display = "none";
+          // Get the user input value
+          var userInput = document.getElementById("userInput").value;
+
+          // Check if the input is within the range
+          if (userInput >= 1 && userInput <= 4) {
+            // fetch the number from the server after every 0.1 seconds
+            setInterval(function () {
+              fetch("http://149.125.138.129:5000")
+                .then((response) => response.json())
+                .then((data) => {
+                  console.log(data);
+                  if (data.value == userInput) {
+                    // document.body.style.backgroundColor = "#ffcc00"; // Change background color to yellow
+                    document.body.style.backgroundColor = "#39FF14"; // Change background color to yellow
+
+                    playBeepSound();
+                  } else {
+                    // change to default color
+                    document.body.style.backgroundColor = "#007a33"; // Change background color to Binghamton green
+                  }
+                });
+            }, 450);
+          } else {
+            alert("Please enter a number between 1 and 4.");
+          }
+        });
+    </script>
+  </body>
+</html>
